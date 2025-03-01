@@ -1,0 +1,25 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.sensor-card {
+    text-align: center;
+}
+
+.sensor-card h5 {
+    margin-bottom: 10px;
+}
+
+.sensor-value {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.chart-container {
+    margin-top: 20px;
+}
+
+.sensor-card canvas {
+    max-height: 200px !important;
+}
