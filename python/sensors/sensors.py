@@ -41,7 +41,7 @@ def send_sensor_data(sensor_type):
     data = {"create_time": current_time, "value": sensor_values[sensor_type], "type": sensor_type}
     response = requests.post("http://127.0.0.1:8000/sensors/create", json=data)
 
-    print(f"[{current_time}] Gửi {sensor_type}: {sensor_values[sensor_type]}, Trạng thái: {response.status_code}")
+    print(f"[{current_time}] Send {sensor_type}: {sensor_values[sensor_type]}, Trạng thái: {response.status_code}")
 
     # Lên lịch chạy lại sau 15 phút
     scheduler.enter(15 * 60, 1, send_sensor_data, argument=(sensor_type,))
