@@ -15,40 +15,80 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert("✅ Đăng nhập thành công!");
+                alert("Đăng nhập thành công!");
                 localStorage.setItem("token", data.token); // Lưu token
                 location.reload(); // Refresh trang
             } else {
-                alert("❌ Sai tài khoản hoặc mật khẩu!");
+                alert("Sai tài khoản hoặc mật khẩu!");
             }
         })
         .catch(error => console.error("Lỗi khi đăng nhập:", error));
     });
 
     // Xử lý sự kiện đăng ký
-    document.getElementById("registerForm").addEventListener("submit", function (event) {
+    document.getElementById("registerForm").addEventListener("submit", function(event) {
         event.preventDefault();
-
-        const username = document.getElementById("registerUsername").value;
+    
+        // Lấy giá trị nhập vào
+        const email = document.getElementById("registerEmail").value;
         const password = document.getElementById("registerPassword").value;
+        const confirmPassword = document.getElementById("registerConfirmPassword").value;
+    
+        // Kiểm tra định dạng email hợp lệ
+        if (!validateEmail(email)) {
+            alert("Email không hợp lệ! Vui lòng nhập đúng định dạng email.");
+            return;
+        }
 
-        fetch("http://127.0.0.1:8000/auth/register", {
+        // Kiểm tra mật khẩu có đáp ứng yêu cầu
+    if (!validatePassword(password)) {
+        alert("Mật khẩu không hợp lệ! Mật khẩu phải có ít nhất 8 ký tự, bao gồm 1 chữ cái viết hoa, 1 số và không chứa ký tự đặc biệt.");
+        return;
+    }
+    
+        // Kiểm tra mật khẩu nhập lại
+        if (password !== confirmPassword) {
+            alert("Mật khẩu nhập lại không khớp!");
+            return;
+        }
+    
+        // Tạo dữ liệu gửi đi
+        const userData = {
+            email: email,
+            password: password
+        };
+    
+        // Gửi request đăng ký
+        fetch("http://127.0.0.1:8000/register", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password })
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(userData)
         })
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
-                alert("✅ Đăng ký thành công! Bạn có thể đăng nhập ngay.");
-                document.getElementById("registerForm").reset();
-                new bootstrap.Modal(document.getElementById("registerModal")).hide();
-            } else {
-                alert("❌ Đăng ký thất bại! " + data.message);
-            }
+            alert("Đăng ký thành công!");
+            document.getElementById("registerForm").reset();
+            new bootstrap.Modal(document.getElementById("registerModal")).hide();
         })
-        .catch(error => console.error("Lỗi khi đăng ký:", error));
+        .catch(error => {
+            console.error("Lỗi khi đăng ký:", error);
+            alert("Đăng ký thất bại, thử lại sau!");
+        });
     });
+    
+    // Hàm kiểm tra định dạng email hợp lệ
+    function validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+    // Hàm kiểm tra mật khẩu hợp lệ
+function validatePassword(password) {
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    return passwordRegex.test(password);
+}
+    
 
     const sensorData = [
         { id: "temperature", icon: "fas fa-temperature-high", name: "Temperature", unit: "°C" },

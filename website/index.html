@@ -41,20 +41,26 @@
                 </div>
                 <div class="modal-body">
                     <form id="loginForm">
+                        <!-- Email -->
                         <div class="mb-3">
-                            <label for="loginUsername" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="loginUsername" required>
+                            <label for="loginEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="loginEmail" required>
                         </div>
+    
+                        <!-- Password -->
                         <div class="mb-3">
                             <label for="loginPassword" class="form-label">Password</label>
                             <input type="password" class="form-control" id="loginPassword" required>
                         </div>
+    
+                        <!-- Submit Button -->
                         <button type="submit" class="btn btn-primary w-100">Login</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+
 
     <!-- Register Modal -->
     <div class="modal fade" id="registerModal" tabindex="-1">
@@ -66,20 +72,33 @@
                 </div>
                 <div class="modal-body">
                     <form id="registerForm">
+                        <!-- Email -->
                         <div class="mb-3">
-                            <label for="registerUsername" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="registerUsername" required>
+                            <label for="registerEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="registerEmail" required>
                         </div>
+    
+                        <!-- Password -->
                         <div class="mb-3">
                             <label for="registerPassword" class="form-label">Password</label>
                             <input type="password" class="form-control" id="registerPassword" required>
                         </div>
+    
+                        <!-- Confirm Password -->
+                        <div class="mb-3">
+                            <label for="registerConfirmPassword" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="registerConfirmPassword" required>
+                        </div>
+    
+                        <!-- Submit Button -->
                         <button type="submit" class="btn btn-success w-100">Register</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+    
+    
     
 
     <!-- Scripts -->
