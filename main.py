@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from db.mongodb import get_db
 from bson import ObjectId
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime
 
 app = FastAPI()
 
@@ -52,3 +53,40 @@ def get_latest_all_sensors():
             }
 
     return latest_data
+
+
+# Lấy dữ liệu cảm biến nhiệt độ trong ngày hôm nay theo các mốc thời gian
+@app.get("/sensors/temperature/today")
+async def get_temperature_data():
+    db = get_db()
+    collection = db["sensors_data"]
+
+    # Lấy ngày hôm nay
+    today = datetime.now().strftime("%Y-%m-%d")
+    
+    # Khởi tạo dữ liệu cho các mốc thời gian
+    hourly_data = {f"{hour:02d}:00": None for hour in range(0, 24, 2)}
+    
+    # Lấy dữ liệu của ngày hôm nay
+    data = collection.find({
+        "type": "temperature",
+        "create_time": {"$regex": f"^{today}"}
+    }, {"_id": 0}).sort("create_time", 1)
+    
+    # Xử lý dữ liệu theo từng mốc thời gian
+    for record in data:
+        hour = int(record["create_time"].split(":")[0].split(" ")[1])
+        # Làm tròn xuống số chẵn gần nhất
+        rounded_hour = (hour // 2) * 2
+        time_key = f"{rounded_hour:02d}:00"
+        if time_key in hourly_data:
+            hourly_data[time_key] = record["value"]
+    
+    # Chuyển đổi sang định dạng phù hợp cho biểu đồ
+    formatted_data = [
+        {"time": time, "value": value if value is not None else 0}
+        for time, value in hourly_data.items()
+    ]
+
+    return {"data": formatted_data}
+

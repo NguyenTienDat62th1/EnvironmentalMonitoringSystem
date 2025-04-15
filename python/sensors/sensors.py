@@ -44,7 +44,7 @@ def send_sensor_data(sensor_type):
     print(f"[{current_time}] Send {sensor_type}: {sensor_values[sensor_type]}, Trạng thái: {response.status_code}")
 
     # Lên lịch chạy lại sau 15 phút
-    scheduler.enter(15 * 60, 1, send_sensor_data, argument=(sensor_type,))
+    scheduler.enter(15 , 1, send_sensor_data, argument=(sensor_type,))
 
 # Tạo từng function riêng cho từng cảm biến
 def send_humidity():

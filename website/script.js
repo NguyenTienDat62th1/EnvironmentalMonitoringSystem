@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const charts = {};
 
     // Xử lý sự kiện đăng nhập
     document.getElementById("loginForm").addEventListener("submit", function (event) {
@@ -105,7 +106,7 @@ function validatePassword(password) {
 
     const container = document.getElementById("sensor-container");
 
-    const charts = {};
+    
 
     // Tạo thẻ card cảm biến
     sensorData.forEach(sensor => {
@@ -131,17 +132,19 @@ function validatePassword(password) {
     // Tạo biểu đồ cho từng cảm biến
     sensorData.forEach(sensor => {
         const ctx = document.getElementById(`${sensor.id}Chart`).getContext("2d");
-
-        new Chart(ctx, {
+    
+        // Xử lý đơn vị đo
+        const unitText = sensor.unit ? `${sensor.unit}` : '';
+    
+        const chart = new Chart(ctx, {
             type: "line",
             data: {
-                labels: Array.from({ length: 10 }, (_, i) => i + 1), // Nhãn từ 1 đến 10
+                labels: [],  // Sẽ được cập nhật sau
                 datasets: [{
                     label: sensor.name,
-                    data: generateRandomData(sensor.min, sensor.max),
-                    borderColor: "blue",
-                    borderWidth: 2,
-                    fill: false
+                    data: [],  // Sẽ được cập nhật sau
+                    borderColor: "rgb(75, 192, 192)",
+                    tension: 0.1
                 }]
             },
             options: {
@@ -149,19 +152,58 @@ function validatePassword(password) {
                 maintainAspectRatio: false,
                 scales: {
                     y: {
-                        suggestedMin: sensor.min, // Giới hạn dưới
-                        suggestedMax: sensor.max  // Giới hạn trên
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: unitText
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Thời gian'
+                        }
                     }
                 }
             }
         });
+    
+        // Lưu biểu đồ vào charts
+        charts[sensor.id] = chart;
     });
+    // sensorData.forEach(sensor => {
+    //     const ctx = document.getElementById(`${sensor.id}Chart`).getContext("2d");
+
+    //     new Chart(ctx, {
+    //         type: "line",
+    //         data: {
+    //             labels: Array.from({ length: 10 }, (_, i) => i + 1), // Nhãn từ 1 đến 10
+    //             datasets: [{
+    //                 label: sensor.name,
+    //                 data: generateRandomData(sensor.min, sensor.max),
+    //                 borderColor: "blue",
+    //                 borderWidth: 2,
+    //                 fill: false
+    //             }]
+    //         },
+    //         options: {
+    //             responsive: true,
+    //             maintainAspectRatio: false,
+    //             scales: {
+    //                 y: {
+    //                     suggestedMin: sensor.min, // Giới hạn dưới
+    //                     suggestedMax: sensor.max  // Giới hạn trên
+    //                 }
+    //             }
+    //         }
+    //     });
+    // });
     // Hàm lấy dữ liệu từ API
     function fetchData() {
         fetch("http://127.0.0.1:8000/sensors/latest_all")
             .then(response => response.json())
             .then(sensorValues => {
-                console.log("📩 Dữ liệu nhận được:", sensorValues);
+                console.log("Dữ liệu nhận được:", sensorValues);
 
                 for (let sensor in sensorValues) {
                     const element = document.getElementById(sensor);
@@ -207,4 +249,223 @@ function validatePassword(password) {
             chart.update();
         }
     }
+
+
+//     // Khởi tạo biểu đồ nhiệt độ
+// function initTemperatureChart() {
+//     const temperatureChartContainer = document.getElementById('sensor-container-temperature');
+//     const temperatureChartDiv = document.createElement('div');
+//     temperatureChartDiv.className = 'col-md-12 mb-4';
+//     temperatureChartDiv.innerHTML = `
+//         <div class="card">
+//             <div class="card-header">
+//                 <h5 class="card-title">Biểu đồ nhiệt độ</h5>
+//             </div>
+//             <div class="card-body">
+//                 <canvas id="temperatureChart"></canvas>
+//             </div>
+//         </div>
+//     `;
+//     temperatureChartContainer.appendChild(temperatureChartDiv);
+
+//     const ctx = document.getElementById('temperatureChart').getContext('2d');
+//     const temperatureChart = new Chart(ctx, {
+//         type: 'line',
+//         data: {
+//             labels: [],
+//             datasets: [{
+//                 label: 'Nhiệt độ (°C)',
+//                 data: [],
+//                 borderColor: 'rgb(75, 192, 192)',
+//                 tension: 0.1,
+//                 fill: false
+//             }]
+//         },
+//         options: {
+//             responsive: true,
+//             maintainAspectRatio: false,
+//             scales: {
+//                 y: {
+//                     beginAtZero: false,
+//                     title: {
+//                         display: true,
+//                         text: 'Nhiệt độ (°C)'
+//                     }
+//                 },
+//                 x: {
+//                     title: {
+//                         display: true,
+//                         text: 'Thời gian'
+//                     }
+//                 }
+//             }
+//         }
+//     });
+
+//     // Lưu biểu đồ vào charts
+//     charts['temperature'] = temperatureChart;
+// }
+
+// // Gọi hàm khởi tạo biểu đồ nhiệt độ
+// initTemperatureChart();
+
+
+// // Gọi api lấy dữ liệu nhiệt độ trong ngày
+// function fetchTemperatureData() {
+//     fetch("[http://127.0.0.1](http://127.0.0.1):8000/sensors/temperature/today")
+//         .then(response => {
+//             if (!response.ok) {
+//                 throw new Error('Network response was not ok');
+//             }
+//             return response.json();
+//         })
+//         .then(result => {
+//             console.log("Dữ liệu nhiệt độ trong ngày:", result);
+//             const chart = charts["temperature"];
+//             if (chart && result.data && result.data.length > 0) {
+//                 // Lọc và format dữ liệu
+//                 const hourlyData = result.data.filter((item) => {
+//                     const time = new Date(item.create_time);
+//                     const hour = time.getHours();
+//                     return hour % 2 === 0; // Lấy dữ liệu mỗi 2 giờ
+//                 });
+
+//                 // Format dữ liệu cho biểu đồ
+//                 const labels = hourlyData.map(item => {
+//                     const time = new Date(item.create_time);
+//                     return `${time.getHours()}:00`;
+//                 });
+//                 const values = hourlyData.map(item => parseFloat(item.value));
+
+//                 // Cập nhật dữ liệu biểu đồ
+//                 chart.data.labels = labels;
+//                 chart.data.datasets[0].data = values;
+//                 chart.update();
+//             }
+//         })
+//         .catch(error => {
+//             console.error("Lỗi khi lấy dữ liệu:", error);
+//             // Hiển thị thông báo lỗi
+//             const chart = charts["temperature"];
+//             if (chart) {
+//                 chart.data.labels = ['Lỗi'];
+//                 chart.data.datasets[0].data = [0];
+//                 chart.update();
+//             }
+//         });
+// }
+
+// // Gọi hàm fetchTemperatureData mỗi 5 phút
+// fetchTemperatureData();
+// setInterval(fetchTemperatureData, 5000);
+
 });
+
+
+// Khởi tạo biểu đồ nhiệt độ
+// function initTemperatureChart() {
+//     const temperatureChartContainer = document.getElementById('sensor-container-temperature');
+//     const temperatureChartDiv = document.createElement('div');
+//     temperatureChartDiv.className = 'col-md-12 mb-4';
+//     temperatureChartDiv.innerHTML = `
+//         <div class="card">
+//             <div class="card-header">
+//                 <h5 class="card-title">Biểu đồ nhiệt độ</h5>
+//             </div>
+//             <div class="card-body">
+//                 <canvas id="temperatureChart"></canvas>
+//             </div>
+//         </div>
+//     `;
+//     temperatureChartContainer.appendChild(temperatureChartDiv);
+
+//     const ctx = document.getElementById('temperatureChart').getContext('2d');
+//     const temperatureChart = new Chart(ctx, {
+//         type: 'line',
+//         data: {
+//             labels: [],
+//             datasets: [{
+//                 label: 'Nhiệt độ (°C)',
+//                 data: [],
+//                 borderColor: 'rgb(75, 192, 192)',
+//                 tension: 0.1,
+//                 fill: false
+//             }]
+//         },
+//         options: {
+//             responsive: true,
+//             maintainAspectRatio: false,
+//             scales: {
+//                 y: {
+//                     beginAtZero: false,
+//                     title: {
+//                         display: true,
+//                         text: 'Nhiệt độ (°C)'
+//                     }
+//                 },
+//                 x: {
+//                     title: {
+//                         display: true,
+//                         text: 'Thời gian'
+//                     }
+//                 }
+//             }
+//         }
+//     });
+
+//     // Lưu biểu đồ vào charts
+//     charts['temperature'] = temperatureChart;
+// }
+
+// Gọi hàm khởi tạo biểu đồ nhiệt độ
+initTemperatureChart();
+
+
+// Gọi api lấy dữ liệu nhiệt độ trong ngày
+// function fetchTemperatureData() {
+//     fetch("[http://127.0.0.1](http://127.0.0.1):8000/sensors/temperature/today")
+//         .then(response => {
+//             if (!response.ok) {
+//                 throw new Error('Network response was not ok');
+//             }
+//             return response.json();
+//         })
+//         .then(result => {
+//             console.log("Dữ liệu nhiệt độ trong ngày:", result);
+//             const chart = charts["temperature"];
+//             if (chart && result.data && result.data.length > 0) {
+//                 // Lọc và format dữ liệu
+//                 const hourlyData = result.data.filter((item) => {
+//                     const time = new Date(item.create_time);
+//                     const hour = time.getHours();
+//                     return hour % 2 === 0; // Lấy dữ liệu mỗi 2 giờ
+//                 });
+
+//                 // Format dữ liệu cho biểu đồ
+//                 const labels = hourlyData.map(item => {
+//                     const time = new Date(item.create_time);
+//                     return `${time.getHours()}:00`;
+//                 });
+//                 const values = hourlyData.map(item => parseFloat(item.value));
+
+//                 // Cập nhật dữ liệu biểu đồ
+//                 chart.data.labels = labels;
+//                 chart.data.datasets[0].data = values;
+//                 chart.update();
+//             }
+//         })
+//         .catch(error => {
+//             console.error("Lỗi khi lấy dữ liệu:", error);
+//             // Hiển thị thông báo lỗi
+//             const chart = charts["temperature"];
+//             if (chart) {
+//                 chart.data.labels = ['Lỗi'];
+//                 chart.data.datasets[0].data = [0];
+//                 chart.update();
+//             }
+//         });
+// }
+
+// Gọi hàm fetchTemperatureData mỗi 5 phút
+fetchTemperatureData();
+setInterval(fetchTemperatureData, 5000);
