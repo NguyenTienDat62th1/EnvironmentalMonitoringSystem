@@ -13,14 +13,29 @@
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Environmental Monitoring</a>
-            <div>
-                <button class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal">
-                    <i class="fas fa-sign-in-alt"></i> Login
-                </button>
-                <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#registerModal">
-                    <i class="fas fa-user-plus"></i> Register
-                </button>
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="fas fa-leaf me-2" style="color: #8BC34A;"></i>
+                <span>Hệ thống giám sát môi trường</span>
+            </a>
+            <div class="d-flex align-items-center">
+                <div class="nav-item me-3">
+                    <a class="nav-link text-white" href="#">
+                        <i class="fas fa-chart-line me-1"></i>
+                        <span>Thống kê</span>
+                    </a>
+                </div>
+                <div class="nav-item me-3">
+                    <a class="nav-link text-white" href="#">
+                        <i class="fas fa-map-marker-alt me-1"></i>
+                        <span>Địa điểm</span>
+                    </a>
+                </div>
+                <div class="nav-item me-3">
+                    <a class="nav-link text-white" href="#">
+                        <i class="fas fa-cog me-1"></i>
+                        <span>Cài đặt</span>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
@@ -74,6 +89,11 @@
                 </div>
                 <div class="modal-body">
                     <form id="registerForm">
+                        <!-- Full Name -->
+    <div class="mb-3">
+        <label for="registerFullName" class="form-label">Họ và tên</label>
+        <input type="text" class="form-control" id="registerFullName" required>
+    </div>
                         <!-- Email -->
                         <div class="mb-3">
                             <label for="registerEmail" class="form-label">Email</label>

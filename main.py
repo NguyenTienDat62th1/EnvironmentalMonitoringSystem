@@ -1,11 +1,23 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
 from db.mongodb import get_db
 from bson import ObjectId
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
+from motor.motor_asyncio import AsyncIOMotorClient
+from fastapi.responses import JSONResponse
+Field
+import os
+import bcrypt
 
 app = FastAPI()
+
+
+# Kết nối MongoDB
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+client = AsyncIOMotorClient(MONGO_URI)
+db = client["environment_monitoring"]
+users_collection = db["users"]
 
 
 # Cấu hình CORS
@@ -90,3 +102,32 @@ async def get_temperature_data():
 
     return {"data": formatted_data}
 
+
+
+class RegisterRequest(BaseModel):
+    full_name: str
+    email: EmailStr
+    password: str
+
+@app.post("/register")
+async def register(request: RegisterRequest):
+    # Kiểm tra email đã tồn tại chưa
+    existing_user = await users_collection.find_one({"email": request.email})
+    if existing_user:
+        return JSONResponse(status_code=400, content={"success": False, "message": "Email đã tồn tại!"})
+
+    # Hash mật khẩu
+    hashed_password = bcrypt.hashpw(request.password.encode('utf-8'), bcrypt.gensalt())
+
+    # Lưu user mới vào MongoDB
+    user_dict = {
+        "full_name": request.full_name,
+        "email": request.email,
+        "password": hashed_password.decode('utf-8'),
+        "created_at": datetime.now().isoformat()
+    }
+    result = await users_collection.insert_one(user_dict)
+    if result.acknowledged:
+        return JSONResponse(status_code=201, content={"success": True, "message": "Đăng ký thành công!"})
+    else:
+        return JSONResponse(status_code=500, content={"success": False, "message": "Lỗi khi lưu dữ liệu vào MongoDB"})
