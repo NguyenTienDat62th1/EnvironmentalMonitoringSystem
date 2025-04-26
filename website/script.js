@@ -3,50 +3,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Xử lý sự kiện đăng nhập
   document.getElementById("loginForm").addEventListener("submit", async function (event) {
-      event.preventDefault();
+    event.preventDefault();
+    const username = document.getElementById("loginUsername").value;
+    const password = document.getElementById("loginPassword").value;
 
-      const username = document.getElementById("loginUsername").value;
-      const password = document.getElementById("loginPassword").value;
-
-      if (!username.trim()) {
-        alert("Vui lòng nhập tên đăng nhập!");
-        return;
-    }
-    if (!password) {
-        alert("Vui lòng nhập mật khẩu!");
+    if (!username.trim() || !password) {
+        alert("Vui lòng nhập đầy đủ thông tin!");
         return;
     }
 
     try {
         const response = await fetch("http://127.0.0.1:8000/login", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                username: username,
-                password: password
-            }),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
         });
-
         const data = await response.json();
 
-        if (response.ok && data.success) {
-            alert("Đăng nhập thành công!");
-            // Lưu token nếu cần
-            if (data.token) {
-                localStorage.setItem("token", data.token);
-            }
-            // Chuyển hướng sang index.html
-            window.location.href = "index.html";
+        if (data.success) {
+            // alert("Đăng nhập thành công!");
+            window.location.href = "/website/index.html"; // Nếu muốn chuyển trang
         } else {
-            alert(data.message || "Sai tài khoản hoặc mật khẩu!");
+            alert(data.message || "Đăng nhập thất bại!");
         }
     } catch (error) {
-        console.error("Lỗi khi đăng nhập:", error);
-        alert("Đăng nhập thất bại, thử lại sau!");
+        alert("Lỗi khi đăng nhập: " + error);
     }
-    });
+});
 
   // Xử lý sự kiện đăng ký
   document.getElementById("registerForm").addEventListener("submit", async function (event) {
@@ -143,7 +126,9 @@ document.addEventListener("DOMContentLoaded", function () {
   ];
 
   const container = document.getElementById("sensor-container");
-
+  if (!container) {
+    console.error('Không tìm thấy phần tử với id "sensor-container"');
+  } else {
   // Tạo thẻ card cảm biến
   sensorData.forEach((sensor) => {
     const card = document.createElement("div");
@@ -159,7 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
     container.appendChild(card);
   });
-
+  }
   // Hàm tạo dữ liệu ngẫu nhiên cho biểu đồ
   function generateRandomData(min, max, length = 10) {
     return Array.from(
@@ -260,7 +245,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // setInterval(fetchData, 60000);
-  setInterval(fetchData, 5000);
+  setInterval(fetchData, 30000);
 
   // Hàm lấy đơn vị đo
   function getUnit(sensor) {
